@@ -1,0 +1,36 @@
+<script src='../../node_modules/steal/steal.js' main='demo'></script>
+
+<script id="template" type="text/mustache">
+	<h1> On inserted by default </h1>
+	<div can-animate-fade-in='slow'>can-animate-fade-in='slow'</div>
+	<div can-animate-fade-out='slow'>can-animate-fade-out='slow'</div>
+
+	<hr />
+	<h1>Animate on value change</h1>
+
+	<button can-animate-fade-out="slow" can-animate-when='{atFive}' can-click="increment">Disappears when clicked five times: {{count}}</button>
+
+	<br />
+
+	<div can-animate-when="{count}" can-animate-fade-toggle="fast">can-animate-when="{count}" can-animate-fade-toggle="fast"</div>
+
+	<hr />
+
+	<h1>Style inline or in property (click)</h1>
+	<div can-animate-style='font-size: 50pt' can-animate-when='click'>
+		can-animate-style='font-size: 50pt'
+	</div>
+	<div can-animate-style='{getSmall}' style='font-size: 50pt' can-animate-when='click'>
+		can-animate-style='{getSmall}'
+	</div>
+
+	<hr />
+
+	<h1>Import jquery-ui for colors (click)</h1>
+	<h2 can-animate-when='click' can-animate-style='color: red' can-animate-duration="slow">
+		can-animate-style='color: red' can-animate-duration="slow"
+	</h2>
+
+</script>
+
+<div id="content"></div>
