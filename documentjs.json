@@ -1,0 +1,11 @@
+{
+	"sites": {
+		"api": {
+			"glob": {
+				"pattern": "{doc,src}/**/*.{js,md}"
+			},
+			"dest" : "./api",
+			"parent": "can-animate"
+		}
+	}
+}
