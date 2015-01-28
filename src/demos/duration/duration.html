@@ -1,0 +1,24 @@
+<script src='../../../node_modules/steal/steal.js' main='demos/duration/duration'></script>
+
+<script id="demo-html" type="text/mustache">
+<button can-click="run">
+	Change margin-left to 200px
+</button>
+
+<h3 can-animate-duration='100'
+ can-animate-when="{triggerMove}" can-animate-style="margin-left: 200px">100</h3>
+
+<h3 can-animate-duration='fast'
+	can-animate-when="{triggerMove}" can-animate-style="margin-left: 200px">'fast' (200)</h3>
+
+<h3 can-animate-duration='400'
+	can-animate-when="{triggerMove}"  can-animate-style="margin-left: 200px">default (400)</h3>
+
+<h3 can-animate-duration='slow'
+	can-animate-when="{triggerMove}" can-animate-style="margin-left: 200px">'slow' (600)</h3>
+
+<h3 can-animate-duration='800'
+	can-animate-when="{triggerMove}"  can-animate-style="margin-left: 200px">800</h3>
+</script>
+
+<div id="content"></div>

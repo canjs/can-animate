@@ -1,0 +1,13 @@
+<script src='../../../node_modules/steal/steal.js' main='demos/lists/removal'></script>
+
+<script id="demo-html" type="text/mustache">
+<ul>
+	{{#each names}}
+	<li can-click="remove" can-animate-fade-out="slow" can-animate-when="removed">
+	{{.}}
+	</li>
+	{{/each}}
+</li>
+</script>
+
+<div id="content"></div>

@@ -1,9 +1,9 @@
 @function can-animate-easing
-@parent can-animate
+@parent can-animate.api
 
 @signature `can-animate-esing="EASING"`
 
-@param {String} [EASING='swing'] Specify the easing used for the animation:
+@param {String} [EASING='swing'] Specify the easing used for the animation as one of the following:
 
  * swing
  * linear
@@ -18,3 +18,5 @@
 ```
 <div can-animation-easing="linear" can-animation="{ANIMATIONKEY}"></div>
 ```
+
+@demo src/demos/easing/easing.html

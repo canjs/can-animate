@@ -11,7 +11,12 @@ var removeCurly = function (value) {
       return value.substr(1, value.length - 2);
   }
   return value;
-}
+};
+
+var bindFunction = function(fn){
+	var fn = removeCurly(fn);
+	return this.context[fn];
+};
 
 var animateAttrs = {
 	"animate": {
@@ -22,7 +27,7 @@ var animateAttrs = {
 	},
 	"duration": {
 		setup: function(el, duration){
-			this.options.duration = duration;
+			this.options.duration = parseInt(duration, 10) || duration;
 		}
 	},
 	"easing": {
@@ -32,7 +37,10 @@ var animateAttrs = {
 	},
 	"fade-in": {
 		setup: function(el, duration){
-			el.css('opacity', '0');
+			if(el.style.opacity === ''){
+				el.style.opacity = 0;
+			}
+
 			this.properties.opacity = '1';
 
 			if(duration){
@@ -74,7 +82,7 @@ var animateAttrs = {
 		}
 	},
 	"style": {
-		setup: function(el, css, ctx){
+		setup: function(el, css){
 			var style = removeCurly(css),
 					properties = {};
 			if(style === css){
@@ -84,7 +92,7 @@ var animateAttrs = {
 					properties[split[0]] = can.trim(split[1]);
 				});
 			}else {
-				var fromCtx = ctx.attr(style);
+				var fromCtx = this.context.attr(style);
 				properties = fromCtx.attr ? fromCtx.attr() : fromCtx;
 			}
 
@@ -93,12 +101,12 @@ var animateAttrs = {
 	},
 	"start": {
 		setup: function(el, method){
-
+			this.options.start = bindFunction.call(this, method);
 		}
 	},
 	"complete": {
 		setup: function(el, method){
-			
+			this.options.complete = bindFunction.call(this, method);
 		}
 	}
 }
@@ -107,24 +115,25 @@ var processAnimation = function(element, attrData){
 	var el = $(element);
 	if( !can.data(el, "_processed") ) {
 		can.data(el, "_processed", true);
-		var ctx = attrData.scope._context;
 
 		var animationData = {
 			properties: {},
-			options: {}
+			options: {},
+			context: attrData.scope._context
 		};
 
 		can.each( element.attributes, function(attribute) {
 			var name = attribute.nodeName.replace('can-animate-', ''),
 					value = attribute.value;
 
+			//move to top
 			if(attribute.nodeName.indexOf('can-animate-')===0 
 					&& animateAttrs[name]){
-				animateAttrs[name].setup.call(animationData, el, value, ctx);
+				animateAttrs[name].setup.call(animationData, element, value);
 			}
 		});
 
-		var animate = function(){
+		var animate = function(ev){
 			return can.animate(el, animationData.properties, animationData.options);
 		};
 
@@ -132,7 +141,7 @@ var processAnimation = function(element, attrData){
 		if(when===(animationData.when || 'inserted')){
 			el.bind(when, animate);
 		}else{
-			ctx.bind(when, animate);
+			animationData.context.bind(when, animate);
 		}
 	}
 }

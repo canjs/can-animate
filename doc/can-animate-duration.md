@@ -1,5 +1,5 @@
 @function can-animate-duration
-@parent can-animate
+@parent can-animate.api
 
 @signature `can-animate-duration="DURATION"`
 
@@ -20,3 +20,4 @@
 <div can-animation-duration="slow" can-animation="{ANIMATIONKEY}"></div>
 ```
 
+@demo src/demos/duration/duration.html

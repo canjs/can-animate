@@ -1,22 +1,30 @@
 @function can-animate-style
-@parent can-animate
+@parent can-animate.api
 
-@signature `can-animate-duration="DURATION"`
+@signature `can-animate-duration="[style|{property}]"`
 
-@param {String|Number} [DURATION=400] Specify the duration of the animation as:
+@param {String|Object} [STYLE] Specify the style to animate toward either as:
 
- * A string
-   * slow: 600ms
-   * fast: 200ms
- * A number, specifying duration in milliseconds
- 
- If not specified, the duration will be 400ms.
+ * A string of css properties (similar to the `style` attribute)
+ * The name of a property in the template's scope that is an object of CSS properties to animate toward
 
 @body
 
 ## Use
 
+### String
+
 ```
-<div can-animation-duration="slow" can-animation="{ANIMATIONKEY}"></div>
+<div can-animation-style="height: 300px; margin-left: 200px"></div>
 ```
 
+### Object
+
+```
+    can.view('<div can-animation-style="{css}"></div>', {
+        css: {
+            height: '300px',
+            margin-left: '200px'
+        }
+    });
+```
