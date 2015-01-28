@@ -1,6 +1,32 @@
 import can from "can";
 import stache from "can/view/stache/";
 
+can.oldRemove = can.remove;
+
+// must be able to intercept a removed event
+can.remove = function(wrapped){
+	var preventDefault = false,
+			self = this;
+
+		can.each(wrapped, function(val){
+			if(val.nodeType===1){
+				var v = $(val),
+						before;
+				if(before = can.data(v, '_beforeRemove')){
+					preventDefault = true;
+					before(function(){
+						return can.oldRemove.apply(self, [val]);
+					});
+				}
+			}
+		});
+
+	if(preventDefault){
+		return wrapped;
+	}
+	return can.oldRemove.apply(this, arguments);
+}
+
 // falls back to jQuery
 can.animate = function(el, properties, options){
 	return el.animate(properties, options);
@@ -133,13 +159,20 @@ var processAnimation = function(element, attrData){
 			}
 		});
 
-		var animate = function(ev){
+		var animate = function(){
 			return can.animate(el, animationData.properties, animationData.options);
 		};
 
 		var when = animationData.when ? removeCurly(animationData.when) : 'inserted';
 		if(when===(animationData.when || 'inserted')){
-			el.bind(when, animate);
+			if(when==='removed'){
+				can.data(el, '_beforeRemove', function(cb){
+					animationData.options.always = cb;
+					animate();
+				});
+			}else{
+				el.bind(when, animate);
+			}
 		}else{
 			animationData.context.bind(when, animate);
 		}
