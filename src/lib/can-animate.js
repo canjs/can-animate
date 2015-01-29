@@ -45,10 +45,10 @@ var bindFunction = function(fn){
 };
 
 var animateAttrs = {
-	"animate": {
+	"options": {
 		setup: function(el, key){
-			//process key to find properties or animate object
-
+			var options = this.context.attr(removeCurly(key));
+			this.options = can.extend(this.options, options);
 		}
 	},
 	"duration": {

@@ -1,7 +1,7 @@
 @function can-animate-style
 @parent can-animate.api
 
-@signature `can-animate-duration="[style|{property}]"`
+@signature `can-animate-style="[style|{property}]"`
 
 @param {String|Object} [STYLE] Specify the style to animate toward either as:
 
