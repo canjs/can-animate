@@ -2,8 +2,7 @@ import can from "can";
 import stache from "can/view/stache/";
 
 can.oldRemove = can.remove;
-
-// must be able to intercept a removed event
+// wrap the remove function
 can.remove = function(wrapped){
 	var preventDefault = false,
 			self = this;
@@ -48,6 +47,7 @@ var animateAttrs = {
 	"options": {
 		setup: function(el, key){
 			var options = this.context.attr(removeCurly(key));
+			options = options.attr ? options.attr() : options;
 			this.options = can.extend(this.options, options);
 		}
 	},
@@ -94,12 +94,12 @@ var animateAttrs = {
 	},
 	"inserted": {
 		setup: function(el){
-			animateAttrs['when'].setup(el, 'inserted')
+			animateAttrs['when'].setup.call(this, el, 'inserted')
 		}
 	},
 	"removed": {
 		setup: function(el){
-			animateAttrs['when'].setup(el, 'removed');
+			animateAttrs['when'].setup.call(this, el, 'removed');
 		}
 	},
 	"when": {
@@ -115,7 +115,7 @@ var animateAttrs = {
 				var props = css.split(';');
 				can.each(props, function(val){
 					var split = val.split(':');
-					properties[split[0]] = can.trim(split[1]);
+					properties[can.trim(split[0])] = can.trim(split[1]);
 				});
 			}else {
 				var fromCtx = this.context.attr(style);
@@ -183,5 +183,7 @@ can.view.attr('can-animate-fade-in', processAnimation);
 can.view.attr('can-animate-fade-out', processAnimation);
 can.view.attr('can-animate-when', processAnimation);
 can.view.attr('can-animate-style', processAnimation);
+
+can.animate.animateAttrs = animateAttrs;
 
 export default can.animate;
