@@ -107,3 +107,56 @@ attrSetupTest('start', '{scopeMethod}', 'options.start', scopeMethod,
 
 attrSetupTest('complete', '{scopeMethod}', 'options.complete', scopeMethod,
 	'complete method set from scope property', null, scope);
+
+QUnit.module('can-animate/removal');
+
+var animationTest = function(name, animateText, options){
+	var text = '<div class="animated" ';
+	var scope = new can.Map({});
+
+	if(options && options.start){
+		text = text + 'can-animate-start="{start}" ';
+		scope.attr('start', options.start);
+	}
+	if(options && options.complete){
+		text = text + 'can-animate-complete="{complete}" ';
+		scope.attr('complete', options.complete);
+	}
+	text = text + animateText;
+	text = text + '></div>';
+
+	test(name, function(){
+		if(options.before){
+			options.before();
+		}
+		$('#qunit-fixture').html(can.view.stache(text)(scope));
+		if(options.after){
+			options.after();
+		}
+	})
+}
+
+animationTest('fade in on insertion', 
+	'can-animate-fade-in="slow"',
+	{
+		start: function(){equal(this.style.opacity, 0)},
+		complete: function(){equal(this.style.opacity, 1); start()},
+		before: function(){
+			expect(2);
+			stop();
+		}
+	});
+
+animationTest('fades out before removal',
+	'can-animate-when="removed" can-animate-fade-out="slow"',
+	{
+		start: function(){equal(this.style.display, '');},
+		complete: function(){equal(this.style.display, 'none'); start();},
+		before: function(){
+			expect(2);
+			stop();
+		},
+		after: function(){
+			can.remove($('#qunit-fixture .animated'));
+		}
+	});
