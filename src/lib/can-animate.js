@@ -149,13 +149,13 @@ var processAnimation = function(element, attrData){
 		};
 
 		can.each( element.attributes, function(attribute) {
-			var name = attribute.nodeName.replace('can-animate-', ''),
-					value = attribute.value;
+			if(attribute.nodeName.indexOf('can-animate-')===0){
+				var name = attribute.nodeName.replace('can-animate-', ''),
+						value = attribute.value;
 
-			//move to top
-			if(attribute.nodeName.indexOf('can-animate-')===0 
-					&& animateAttrs[name]){
-				animateAttrs[name].setup.call(animationData, element, value);
+				if(animateAttrs[name]){
+					animateAttrs[name].setup.call(animationData, element, value);
+				}
 			}
 		});
 
