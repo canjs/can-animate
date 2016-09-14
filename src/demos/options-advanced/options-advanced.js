@@ -1,15 +1,14 @@
 import animate from "can-animate";
 import can from "can";
-import animateOptions from "./animations";
 import Zone from "can-zone";
 
-var scope = new can.Map({
+var Scope = can.Map.extend({
     "hasError": false,
     animateOptions: {
 
         "duration": 2000,
 
-        "bindings":{
+        "hooks":{
 
             //---- inserted - function
             //TODO: when passed this way, opts doesn't have properties (like duration) passed from parent
@@ -74,12 +73,10 @@ var scope = new can.Map({
             //---- hasError - function
             "hasError": function(opts){
                     //run custom shake method
-                    //run opts.fn when done
-                    console.log("hasError - opts",arguments);
                     if(opts.context.attr("hasError")){
-                        console.log("run animation");
+                        console.log("hasError - opts",arguments);
                         $(opts.el).fadeOut(200, function(){
-                            $(opts.el).fadeIn(1000, function(){
+                            $(opts.el).fadeIn(200, function(){
                                 console.log("hasError animation done");
                             });
                         });
@@ -122,9 +119,11 @@ var scope = new can.Map({
 
 var $content = can.$("#content"),
     $demoHtml = can.$("#demo-html"),
-    $addButton = can.$(".add-modal");
+    $addButton = can.$(".add-modal"),
+    scope;
 
 $addButton.click(function(){
+    scope = new Scope();
     $('#content').html(can.view('#demo-html', scope));
 });
 
@@ -138,21 +137,16 @@ $content.on("click", function(ev){
         var $modal = $target.closest(".modal"),
             $input = $modal.find("input"),
             value = $input.val();
+
         scope.attr("hasError", false);
 
-            console.log("value", value);
         if(!value || !value.length){
-            console.log("! has value");
             scope.attr("hasError", true);
         }else{
             //do something with the value
             //then close
-            can.remove($modal);
+            // can.remove($modal);
+            $modal.remove();
         }
     }
 });
-
-$content.on("removed", function(){
-    console.log("bind to removed");
-});
-
