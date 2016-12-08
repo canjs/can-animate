@@ -4,9 +4,9 @@ import Zone from "can-zone";
 // falls back to jQuery
 can.animate = (el, properties, options) => can.$(el).animate(properties, options);
 
-var AnimationHook = function(hookData, globalData, animateAttrs){
+var AnimationBinding = function(propertyIdentifier, bindingData, globalData, animateAttrs){
 
-  this.hookData = hookData;
+  this.bindingData = bindingData;
   this.animateAttrs = animateAttrs;
 
   // handle a property being a string or function
@@ -21,9 +21,9 @@ var AnimationHook = function(hookData, globalData, animateAttrs){
   // "inserted": function(opts){}
   // ->
   // "inserted": { "run": function(opts) {} }
-  if(typeof(this.hookData) === "string" || typeof(this.hookData) === "function"){
-    this.hookData = {
-      "run": this.hookData
+  if(typeof(this.bindingData) === "string" || typeof(this.bindingData) === "function"){
+    this.bindingData = {
+      "run": this.bindingData
     };
   }
 
@@ -34,25 +34,27 @@ var AnimationHook = function(hookData, globalData, animateAttrs){
   //  "before": function(opts){},
   //  "after": function(opts){}
   // }
-  if(can.$.isPlainObject(this.hookData)){
-    this.before = this.hookData.before;
-    this.after = this.hookData.after;
-    this.run = this.hookData.run;
+  if(can.$.isPlainObject(this.bindingData)){
+    this.before = this.bindingData.before;
+    this.after = this.bindingData.after;
+    this.run = this.bindingData.run;
   }
 
   // TODO: handle a property being a map
 
 
 
-  this.animationData = can.extend(true, {}, globalData, {
-    options:this.hookData,
-    properties: this.hookData.properties
+  this.animationData = can.extend(true, {
+    properties:{}
+  }, globalData, {
+    options:this.bindingData,
+    properties: this.bindingData.properties
   });
 
 };
 
 
-AnimationHook.prototype.animate = function(){
+AnimationBinding.prototype.animate = function(){
   // console.log("animate");
 
   let beforeZoneReturnVal,
@@ -108,4 +110,4 @@ AnimationHook.prototype.animate = function(){
 };
 
 
-export default AnimationHook;
+export default AnimationBinding;

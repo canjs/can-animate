@@ -8,7 +8,7 @@ var Scope = can.Map.extend({
 
         "duration": 2000,
 
-        "hooks":{
+        "bindings":{
 
             //---- inserted - function
             //TODO: when passed this way, opts doesn't have properties (like duration) passed from parent
