@@ -8,9 +8,22 @@ var Scope = can.Map.extend({
 
         "duration": 2000,
 
-        "mixins": {
-            "pulse": function(opts){
-                //run custom shake method
+        "bindings":{
+
+            "$inserted": function(opts){
+                console.log("inserted - running");
+                opts.$el.hide().fadeIn(opts.duration, function(){
+                    console.log("inserted - animation done");
+                });
+            },
+            "$removed": function(opts){
+                console.log("removed - running");
+                opts.$el.fadeOut(opts.duration, function(){
+                    console.log("removed - animation done");
+                });
+            },
+            "hasError": function(opts){
+                //run custom pulse method
                 if(opts.context.attr("hasError")){
                     console.log("hasError - opts",arguments);
                     opts.$el.fadeOut(200, function(){
@@ -22,33 +35,6 @@ var Scope = can.Map.extend({
                     console.log("don't run animation");
                 }
             }
-        },
-
-        "bindings":{
-            
-            "$inserted": {
-                before: function(){
-                    console.log("inserted before", arguments);
-                },
-                run: function(opts){
-                    console.log("inserted - running");
-                    opts.$el.hide().fadeIn(opts.duration, function(){
-                        console.log("inserted - animation done");
-                    });
-                },
-                after: function(){
-                    console.log("inserted after", arguments);
-                }
-            },
-
-            "$removed": function(opts){
-                console.log("removed - running");
-                opts.$el.fadeOut(opts.duration, function(){
-                    console.log("removed - animation done");
-                });
-            },
-
-            "hasError": "pulse"
         }
     }
 });

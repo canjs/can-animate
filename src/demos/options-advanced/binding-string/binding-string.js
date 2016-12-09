@@ -6,11 +6,22 @@ var Scope = can.Map.extend({
     "hasError": false,
     animateOptions: {
 
-        "duration": 2000,
-
         "mixins": {
+            "fade": function(opts){
+                if(opts.propertyIdentifier === "inserted" || !opts.$el.is(":visible")){
+                    console.log("fade - running");
+                    opts.$el.hide().fadeIn(opts.duration, function(){
+                        console.log("fade - animation done");
+                    });
+                }else if(opts.propertyIdentifier === "removed" || opts.$el.is(":visible")){
+                    console.log("fade - running");
+                    opts.$el.fadeOut(opts.duration, function(){
+                        console.log("fade - animation done");
+                    });
+                }
+            },
             "pulse": function(opts){
-                //run custom shake method
+                //run custom pulse method
                 if(opts.context.attr("hasError")){
                     console.log("hasError - opts",arguments);
                     opts.$el.fadeOut(200, function(){
@@ -24,30 +35,12 @@ var Scope = can.Map.extend({
             }
         },
 
+        "duration": 2000,
+
         "bindings":{
-            
-            "$inserted": {
-                before: function(){
-                    console.log("inserted before", arguments);
-                },
-                run: function(opts){
-                    console.log("inserted - running");
-                    opts.$el.hide().fadeIn(opts.duration, function(){
-                        console.log("inserted - animation done");
-                    });
-                },
-                after: function(){
-                    console.log("inserted after", arguments);
-                }
-            },
 
-            "$removed": function(opts){
-                console.log("removed - running");
-                opts.$el.fadeOut(opts.duration, function(){
-                    console.log("removed - animation done");
-                });
-            },
-
+            "$inserted": "fade",
+            "$removed": "fade",
             "hasError": "pulse"
         }
     }

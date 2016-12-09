@@ -1,0 +1,35 @@
+<script src='../../../../../node_modules/steal/steal.js' main='src/demos/options-advanced/property-identifiers/property-identifiers'></script>
+
+<style>
+ .modal{
+    position:absolute;
+    background:white;
+    top:5em;
+    width:300px;
+    left:50%;
+    margin-left:-150px;
+    border:1px solid #f0f0f0;
+    text-align:center;
+    padding:1em 2em;
+ }
+</style>
+
+<script id="demo-html" type="text/stache">
+
+<div can-animate="animateOptions" class="modal">
+    <h3>Enter some text</h3>
+    <input type="text" />
+    <br />
+    <button class="cancel">Cancel</button>
+    <button class="confirm">Confirm</button>
+
+</div>
+</script>
+
+<div class="button-wrap">
+    Click the button:
+    <button class="add-modal">Open Modal</button>
+</div>
+    
+
+<div id="content"></div>

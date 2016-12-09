@@ -11,7 +11,6 @@ import "./overrides/jquery-animate";
 import "./overrides/can-remove";
 
 import AnimationBinding from './animation-binding';
-import animateAttrs from './animate-attrs';
 import { removeCurly, bindFunction } from './helpers';
 
 // Required Options:
@@ -21,7 +20,8 @@ import { removeCurly, bindFunction } from './helpers';
 var AnimateControl = Control.extend({
   defaults: {
     dataProperty: "_animateControl",
-    duration: 400
+    duration: 400,
+    eventScope: "animate-control"
   },
 
   getOptionsFromAttrData(element, attrData){
@@ -47,64 +47,98 @@ var AnimateControl = Control.extend({
     //set up each hook
     can.each(options.animateOptions.bindings, (bindingData, propId) => {
 
-          // expand bindingData
-      let animateObject = this.makeAnimateObject(bindingData),
-
           // parse property identifier
-          propertyIdentifier = this.parsePropertyIdentifier(propId),
+          let propertyData = this.parsePropertyIdentifier(propId),
+              propertyIdentifier = propertyData.identifier,
 
           //init bindings
           //TODO: save references somewhere?
-          animationBinding = new AnimationBinding(propertyIdentifier, animateObject, options.animateOptions, animateAttrs),
+          animationBinding = new AnimationBinding(propertyIdentifier, bindingData, options.animateOptions, options.duration),
 
           //animation method
-          _animate = () => {
-            return animationBinding.animate();
+          _animate = (ev, newVal, oldVal) => {
+            return animationBinding.animate(ev, newVal, oldVal);
           };
 
-      if (['inserted', 'removed'].indexOf(propertyIdentifier) !== -1){
-        if (propertyIdentifier === 'removed') {
+      //bind to the appropriate scope property/dom event
+      if(propertyData.eventType === "dom"){
+        if(propertyIdentifier === "removed"){
+          //TODO: pass an event to animate if one is available
           can.data($el, '_beforeRemove', cb => _animate().then(cb));
-        } else {
-          $el.bind(propertyIdentifier, _animate);
+        }else{
+          $el.bind(propertyIdentifier + "." + this.options.eventScope, (ev) => {
+            _animate(ev);
+          });
         }
-      } else {
-        options.context.bind(propertyIdentifier, _animate);
+      }else if(propertyData.eventType === "scope"){
+        if(propertyData.logicType === "equals"){
+          options.context.bind(propertyIdentifier, (ev, newVal, oldVal) => {
+            let checkVal;
+            if(typeof propertyData.logicVal === "string" && propertyData.logicVal.indexOf("{") === 0){
+              checkVal = this.options.context.attr(removeCurly(propertyData.logicVal));
+            }
+            if(!checkVal){
+              checkVal = propertyData.logicVal;
+            }
+
+            if( (propertyData.logicVal === true && newVal) ||
+                (propertyData.logicVal === false && !newVal) ||
+                (newVal === checkVal) ){
+              _animate(ev, newVal, oldVal);
+            }
+
+          });
+        }else{
+          options.context.bind(propertyIdentifier, _animate);
+        }
       }
     });
   },
 
   destroy(){
-    //TODO
-  },
-
-  //takes the binding and expands it into an animate object
-  // if it is a string, get object from the mixins
-  // then turn the object into an animateObject
-  makeAnimateObject(data){
-    //TODO: remove this
-
-    if(typeof(data.duration) === 'undefined'){
-      data.duration = this.options.animateOptions.duration;
-    }
-    if(typeof(data.duration) === 'undefined'){
-      data.duration = this.options.duration;
-    }
-    return data;
-
-
-
-    //TODO: if it's a string, look for the value in this.options.animateOptions.mixins
-
-    //TODO: if it's an object, expand animate object
-    // return new AnimateObject(data)
+    can.$(this.element).unbind("." + this.options.eventScope);
   },
 
 
   parsePropertyIdentifier(id){
-    return id ? removeCurly(id) : 'inserted'
+    var identifier = id ? removeCurly(id) : 'inserted';
+    var eventType = "scope";
+    var logicType, logicVal;
+    // starts with $ - dom event ($inserted)
+    if(id.indexOf('$') === 0){
+      identifier = id.substring(1);
+      eventType = "dom";
+    }
+
+    // starts with ! - falsey scope event (!someProp)
+    if(id.indexOf('!') === 0){
+      identifier = id.substring(1);
+      logicType = "equals";  
+      logicVal = false;
+    }
+
+    // ends with ! - truthy scope event (someProp!)
+    if(id.indexOf('!') === (id.length-1)){
+      identifier = id.substring(0, id.length-1);
+      logicType = "equals";
+      logicVal = true;
+    }
+
+    // contains : - equals (someProp:simple-string-value, someProp:{someOtherProp})
+    let equalsAr = id.split(":");
+    if(equalsAr.length === 2){
+      identifier = equalsAr[0];
+      logicType = "equals";
+      logicVal = equalsAr[1];
+    }
+
+    return {
+      identifier,
+      eventType,
+      logicType,
+      logicVal
+    }
   }
 });
 
-export { animateAttrs };
 export default AnimateControl;

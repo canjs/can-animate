@@ -1,55 +1,32 @@
 import can from "can";
 import Zone from "can-zone";
+import { expandAnimateObject } from './helpers';
 
 // falls back to jQuery
 can.animate = (el, properties, options) => can.$(el).animate(properties, options);
 
-var AnimationBinding = function(propertyIdentifier, bindingData, globalData, animateAttrs){
+var AnimationBinding = function(propertyIdentifier, bindingData, globalData, defaultDuration){
 
+  // this.globalData = globalData;
+  this.propertyIdentifier = propertyIdentifier;
+  this.context = globalData.context;
+  this.mixins = globalData.mixins;
+  this.$el = can.$(globalData.el);
   this.bindingData = bindingData;
-  this.animateAttrs = animateAttrs;
 
-  // handle a property being a string or function
-  // convert to object with 'run' property and fall through
-  //
-  //ex:
-  // "inserted": "fade"
-  // ->
-  // "inserted": { "run": "fade" }
-  //
-  // ex 2: 
-  // "inserted": function(opts){}
-  // ->
-  // "inserted": { "run": function(opts) {} }
-  if(typeof(this.bindingData) === "string" || typeof(this.bindingData) === "function"){
-    this.bindingData = {
-      "run": this.bindingData
-    };
+  //if it is a string, get the information from mixins
+  if(typeof(this.bindingData) === 'string'){
+    if(typeof(this.mixins[this.bindingData]) !== 'undefined'){
+      this.animateObject = expandAnimateObject(this.mixins[this.bindingData], globalData, defaultDuration);
+    }
+  }else{
+    this.animateObject = expandAnimateObject(this.bindingData, globalData, defaultDuration);
   }
 
-  // Handle a property being an object
-  //ex: 
-  // "inserted": {
-  //  "run": function(opts){},
-  //  "before": function(opts){},
-  //  "after": function(opts){}
-  // }
-  if(can.$.isPlainObject(this.bindingData)){
-    this.before = this.bindingData.before;
-    this.after = this.bindingData.after;
-    this.run = this.bindingData.run;
-  }
-
-  // TODO: handle a property being a map
-
-
-
-  this.animationData = can.extend(true, {
-    properties:{}
-  }, globalData, {
-    options:this.bindingData,
-    properties: this.bindingData.properties
-  });
+  this.duration = this.animateObject.duration;
+  this.before = this.animateObject.before;
+  this.run = this.animateObject.run;
+  this.after = this.animateObject.after;
 
 };
 
@@ -61,11 +38,14 @@ AnimationBinding.prototype.animate = function(){
       runZoneReturnVal;
 
   return new Zone().run(() => {
-    //TODO: if before is an object, assume css - can.$(this.animationData.el).css(this.before);
     if(typeof(this.before) === 'function'){
-      beforeZoneReturnVal = this.before(this.animationData);
+      beforeZoneReturnVal = this.before(this);
+    }else if(can.$.isPlainObject(this.before)){  // if before is an object, assume css
+      beforeZoneReturnVal = true;
+      this.$el.css(this.before);
     }
   }).then(() => {
+    //allow canceling of further animations
     if(beforeZoneReturnVal === false){
       return false;
     }
@@ -75,18 +55,17 @@ AnimationBinding.prototype.animate = function(){
 
       var _animate;
 
-      //TODO: 
-      // if(can.$.isPlainObject(run)){
-      //  assume css properties and animate to it (set this.animationData.properties = this.run, and call can.animate)
-      // }
-
       if(typeof(this.run) === "string"){
-        this.animateAttrs[this.run].setup.call(this.animationData, this.animationData.el, this.animationData.options.duration);
-        _animate = () => can.animate(this.animationData.el, this.animationData.properties, this.animationData.options);
+        //by this time, our 'run' should have been converted into either an object or a function 
+        console.error("invalid run type");
+      }else if(can.$.isPlainObject(this.run)){
+       // assume css properties and animate to it
+       _animate = () => can.animate(this.$el, this.run, { duration: this.duration });
+      }else if(typeof(this.run) === 'function'){
+        _animate = () => this.run(this);
       }else{
-        _animate = () => this.run(this.animationData);
+        console.error("Unknown type for 'run'");
       }
-
 
       runZoneReturnVal = _animate();
     }).then(() => {
@@ -99,7 +78,7 @@ AnimationBinding.prototype.animate = function(){
         //TODO: if after is an object, assume css - can.$(this.animationData.el).css(this.before);
 
         if(typeof(this.after) === 'function'){
-          return this.after(this.animationData);
+          return this.after(this);
         }
         return false;
       });
