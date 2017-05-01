@@ -11,6 +11,9 @@ Use the `can-animate` attribute with a string value will run that animation on `
 ```
 
 ### Advanced Bindings with Property Identifiers
+
+*NOTE:* Attribute based property identifiers subject to change.
+
 Use the `can-animate-xxxx` attribute (where "xxxx" is a property identifier).  A property identifier is a string that represents the state of a scope property. More about property identifiers, [here](#property-identifiers).  The value of this format can be a string value that corresponds to an animation key or an animation object.  More about animation objects, [here](#animation-objects).
 
 #### Run pulse animation when `myProp` changes
@@ -193,6 +196,9 @@ If the animation object itself is a function:
 ```
 
 ## Property Identifiers
+
+*NOTE:* Attribute based property identifiers subject to change.
+
 Property identifiers provide specificity to when animations are run.
 They can be used within attributes:
 ```
