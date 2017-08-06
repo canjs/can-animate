@@ -1,5 +1,7 @@
 # can-animate
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/canjs/can-animate.svg)](https://greenkeeper.io/)
+
 
 
 
