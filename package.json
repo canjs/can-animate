@@ -44,7 +44,7 @@
     "grunt-cli": "^0.1.13",
     "steal": "0.5.0-npm.2",
     "steal-tools": "0.5.0-npm.2",
-    "steal-qunit": "0.0.2",
+    "steal-qunit": "^2.0.0",
     "testee": "^0.1.8",
     "documentjs": "0.3.0-pre.0"
   }
