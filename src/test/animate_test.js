@@ -5,21 +5,21 @@ import $ from "jquery";
 
 QUnit.module("can-animate");
 
-QUnit.test("calling can.animate falls back to jquery", function(){
+QUnit.test("calling can.animate falls back to jquery", function(assert) {
 	var jq = $('<div>');
 	// jQuery.animate returns the jQuery object
-	equal(animate(jq), jq);
+	assert.equal(animate(jq), jq);
 });
 
-QUnit.test("basic animation works", function(){
+QUnit.test("basic animation works", function(assert) {
 	$('#qunit-fixture').append($('<div class="animated">'));
 	var div = $('div.animated');
 
-	stop();
+	var done = assert.async();
 	can.animate(div, {height: '200px'}, {
 		complete: function(){
-			equal(div.css('height'), '200px', 'height animated by can.animate');
-			start();
+			assert.equal(div.css('height'), '200px', 'height animated by can.animate');
+			done();
 		}
 	});
 
@@ -41,15 +41,15 @@ var attrSetupTest = function(name, key, property, value, title, customEl, contex
 		animationData.context = context;
 	}
 
-	QUnit.test(title, function(){
+	QUnit.test(title, function(assert) {
 		animate.animateAttrs[name].setup.call(animationData, customEl, key);
 
 		if(context){
-			deepEqual(value, can.getObject(property, animationData));
+			assert.deepEqual(value, can.getObject(property, animationData));
 		}else if(property){
-			equal(value, can.getObject(property, animationData));
+			assert.equal(value, can.getObject(property, animationData));
 		}else {
-			deepEqual(animationData, value);
+			assert.deepEqual(animationData, value);
 		}
 	});
 };
@@ -125,7 +125,7 @@ var animationTest = function(name, animateText, options){
 	text = text + animateText;
 	text = text + '></div>';
 
-	test(name, function(){
+	QUnit.test(name, function(assert) {
 		if(options.before){
 			options.before();
 		}
@@ -139,22 +139,22 @@ var animationTest = function(name, animateText, options){
 animationTest('fade in on insertion', 
 	'can-animate-fade-in="slow"',
 	{
-		start: function(){equal(this.style.opacity, 0)},
-		complete: function(){equal(this.style.opacity, 1); start()},
+		start: function(){assert.equal(this.style.opacity, 0)},
+		complete: function(){assert.equal(this.style.opacity, 1); done()},
 		before: function(){
-			expect(2);
-			stop();
+			assert.expect(2);
+			var done = assert.async();
 		}
 	});
 
 animationTest('fades out before removal',
 	'can-animate-when="removed" can-animate-fade-out="slow"',
 	{
-		start: function(){equal(this.style.display, '');},
-		complete: function(){equal(this.style.display, 'none'); start();},
+		start: function(){assert.equal(this.style.display, '');},
+		complete: function(){assert.equal(this.style.display, 'none'); done();},
 		before: function(){
-			expect(2);
-			stop();
+			assert.expect(2);
+			var done = assert.async();
 		},
 		after: function(){
 			can.remove($('#qunit-fixture .animated'));
